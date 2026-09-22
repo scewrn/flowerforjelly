@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blooming Lilies</title>
+<style>
+  :root{
+    color-scheme: dark;
+    --sky-top:#0a0818;
+    --sky-mid:#1c1436;
+    --sky-low:#2c1b3f;
+    --glow:#ffcf8a;
+    --ink:#fbeedd;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{ scroll-padding-top:env(safe-area-inset-top,0px); }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --sky-top:#0a0818; --sky-mid:#1c1436; --sky-low:#2c1b3f; --glow:#ffcf8a; --ink:#fbeedd; }
+  }
+  :root[data-theme="dark"]{ --sky-top:#0a0818; --sky-mid:#1c1436; --sky-low:#2c1b3f; --glow:#ffcf8a; --ink:#fbeedd; }
+  *{ box-sizing:inherit; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    min-height:100%;
+    background:
+      radial-gradient(90% 55% at 50% 78%, rgba(255,207,138,.16) 0%, rgba(255,207,138,0) 65%),
+      linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 55%, var(--sky-low) 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:28px 16px calc(20px + env(safe-area-inset-bottom,0px));
+    font-family:Georgia, 'Times New Roman', serif;
+    color:var(--ink);
+    overflow:hidden;
+    position:relative;
+  }
+
+  .scene{ position:relative; width:320px; max-width:88vw; height:400px; }
+
+  .star{ position:absolute; border-radius:50%; background:#fff2d9; animation:twinkle ease-in-out infinite; }
+
+  .ground-glow{
+    position:absolute; left:50%; bottom:18px; width:220px; height:90px;
+    transform:translateX(-50%);
+    background:radial-gradient(closest-side, rgba(255,207,138,.5), rgba(255,207,138,0) 70%);
+    filter:blur(4px);
+    animation:fadein 1.2s ease-out .3s both;
+  }
+
+  .blade{
+    position:absolute; bottom:22px; width:6px; background:linear-gradient(180deg,#2f5c34,#4a8b4f);
+    border-radius:6px 6px 0 0; transform-origin:bottom center;
+    animation:fadein .6s ease-out both;
+  }
+
+  .stem{ position:absolute; width:4px; background:linear-gradient(180deg,#3f6b45,#5f9a58);
+    border-radius:3px; transform-origin:bottom center;
+    animation-name:stem-grow; animation-timing-function:cubic-bezier(.22,1,.36,1); animation-fill-mode:both; }
+
+  .leaf{
+    position:absolute; width:26px; height:14px; background:#4f8a52; border-radius:0 100% 0 100%;
+    transform-origin:0 50%; animation:fadein .6s ease-out both;
+  }
+
+  .flower{ position:absolute; }
+  .flower svg{ position:absolute; overflow:visible; }
+
+  .petal{ transform-box:fill-box; transform-origin:50% 100%; animation-name:petalbloom; animation-timing-function:cubic-bezier(.3,1.4,.4,1); animation-fill-mode:both; }
+  .stamen{ transform-box:fill-box; transform-origin:50% 100%; animation-name:fadein2; animation-duration:.5s; animation-timing-function:ease-out; animation-fill-mode:both; }
+  .pistil{ transform-box:fill-box; transform-origin:50% 50%; animation-name:fadein2; animation-duration:.5s; animation-timing-function:ease-out; animation-fill-mode:both; }
+  .glow-blob{ animation-name:fadein2; animation-duration:.8s; animation-timing-function:ease-out; animation-fill-mode:both; }
+
+  .heart{ position:absolute; animation-name:heart-float; animation-timing-function:ease-in-out; animation-iteration-count:infinite; }
+
+  @keyframes fadein{ from{ opacity:0; } to{ opacity:1; } }
+  @keyframes fadein2{ from{ opacity:0; transform:scale(.5); } to{ opacity:1; transform:scale(1); } }
+  @keyframes twinkle{ 0%,100%{ opacity:.15; } 50%{ opacity:.75; } }
+  @keyframes stem-grow{
+    from{ transform:rotate(var(--rot)) scaleY(0); opacity:0; }
+    to{ transform:rotate(var(--rot)) scaleY(1); opacity:1; }
+  }
+  @keyframes petalbloom{
+    0%{ transform:scale(.15) rotate(-26deg); opacity:0; }
+    50%{ opacity:1; }
+    100%{ transform:scale(1) rotate(0deg); opacity:1; }
+  }
+  @keyframes heart-float{
+    0%{ transform:translateY(0) scale(.75); opacity:0; }
+    15%{ opacity:1; }
+    82%{ opacity:.85; }
+    100%{ transform:translateY(-110px) scale(1.05); opacity:0; }
+  }
+
+  .caption-row{ margin-top:10px; text-align:center; }
+  #replay-btn{
+    background:none; border:none; font-family:Georgia, serif; font-style:italic;
+    font-size:16px; color:#e7d8c4; letter-spacing:.02em; padding:10px 14px; cursor:pointer;
+    border-bottom:1px solid rgba(251,238,221,.3);
+  }
+  #replay-btn:hover, #replay-btn:focus-visible{ color:#fff; border-color:rgba(251,238,221,.7); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scene" id="scene">
+  <!-- stars -->
+  <div class="star" style="left:14px; top:18px; width:3px; height:3px; animation-duration:4.5s; animation-delay:.2s;"></div>
+  <div class="star" style="left:270px; top:34px; width:2px; height:2px; animation-duration:5.2s; animation-delay:.8s;"></div>
+  <div class="star" style="left:40px; top:70px; width:2px; height:2px; animation-duration:3.8s; animation-delay:1.3s;"></div>
+  <div class="star" style="left:290px; top:90px; width:3px; height:3px; animation-duration:4.9s; animation-delay:.5s;"></div>
+  <div class="star" style="left:8px; top:120px; width:2px; height:2px; animation-duration:4.1s; animation-delay:1.6s;"></div>
+  <div class="star" style="left:300px; top:150px; width:2px; height:2px; animation-duration:5.6s; animation-delay:.9s;"></div>
+
+  <div class="ground-glow"></div>
+
+  <!-- grass blades -->
+  <div class="blade" style="left:40px; height:70px; transform:rotate(-10deg); animation-delay:.1s;"></div>
+  <div class="blade" style="left:60px; height:95px; transform:rotate(-4deg); animation-delay:.2s;"></div>
+  <div class="blade" style="left:250px; height:80px; transform:rotate(8deg); animation-delay:.15s;"></div>
+  <div class="blade" style="left:270px; height:60px; transform:rotate(14deg); animation-delay:.25s;"></div>
+
+  <!-- stems -->
+  <div class="stem" style="left:158px; bottom:22px; height:216px; --rot:0deg; animation-duration:1s; animation-delay:.1s;"></div>
+  <div class="stem" style="left:158px; bottom:22px; height:182px; --rot:-21deg; animation-duration:.9s; animation-delay:.25s;"></div>
+  <div class="stem" style="left:158px; bottom:22px; height:182px; --rot:21deg; animation-duration:.9s; animation-delay:.25s;"></div>
+
+  <!-- leaves at the base -->
+  <div class="leaf" style="left:150px; bottom:56px; transform:rotate(-30deg);" ></div>
+  <div class="leaf" style="left:150px; bottom:40px; transform:rotate(20deg) scaleX(-1);"></div>
+
+  <!-- flower B (left, small) -->
+  <div class="flower" style="left:29px; top:130px;">
+    <svg width="132" height="132" viewBox="-95 -95 190 190">
+      <defs>
+        <linearGradient id="pg-b" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%" stop-color="#FDF0F4"/><stop offset="35%" stop-color="#F6A9C6"/><stop offset="100%" stop-color="#D6407A"/>
+        </linearGradient>
+        <radialGradient id="gg-b"><stop offset="0%" stop-color="#FFE9B8" stop-opacity=".85"/><stop offset="100%" stop-color="#FFE9B8" stop-opacity="0"/></radialGradient>
+        <filter id="bl-b" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="9"/></filter>
+      </defs>
+      <circle class="glow-blob" r="58" fill="url(#gg-b)" filter="url(#bl-b)" style="animation-delay:.85s"/>
+      <g transform="rotate(0)"><g class="petal" style="animation-duration:.85s; animation-delay:1.05s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-b)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".4"/><circle cx="-4" cy="-32" r="1.3" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.1" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.4" fill="#7A1B42" opacity=".55"/></g></g>
+      <g transform="rotate(60)"><g class="petal" style="animation-duration:.85s; animation-delay:1.1s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-b)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".4"/><circle cx="-4" cy="-32" r="1.3" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.1" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.4" fill="#7A1B42" opacity=".55"/></g></g>
+      <g transform="rotate(120)"><g class="petal" style="animation-duration:.85s; animation-delay:1.15s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-b)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".4"/><circle cx="-4" cy="-32" r="1.3" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.1" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.4" fill="#7A1B42" opacity=".55"/></g></g>
+      <g transform="rotate(180)"><g class="petal" style="animation-duration:.85s; animation-delay:1.2s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-b)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".4"/><circle cx="-4" cy="-32" r="1.3" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.1" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.4" fill="#7A1B42" opacity=".55"/></g></g>
+      <g transform="rotate(240)"><g class="petal" style="animation-duration:.85s; animation-delay:1.25s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-b)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".4"/><circle cx="-4" cy="-32" r="1.3" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.1" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.4" fill="#7A1B42" opacity=".55"/></g></g>
+      <g transform="rotate(300)"><g class="petal" style="animation-duration:.85s; animation-delay:1.3s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-b)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".4"/><circle cx="-4" cy="-32" r="1.3" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.1" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.4" fill="#7A1B42" opacity=".55"/></g></g>
+      <g transform="rotate(30)"><g class="stamen" style="animation-delay:1.55s"><line x1="0" y1="-2" x2="0" y2="-48" stroke="#E7EFC9" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="0" cy="-51" rx="4" ry="1.8" fill="#8B4226"/></g></g>
+      <g transform="rotate(90)"><g class="stamen" style="animation-delay:1.55s"><line x1="0" y1="-2" x2="0" y2="-48" stroke="#E7EFC9" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="0" cy="-51" rx="4" ry="1.8" fill="#8B4226"/></g></g>
+      <g transform="rotate(150)"><g class="stamen" style="animation-delay:1.55s"><line x1="0" y1="-2" x2="0" y2="-48" stroke="#E7EFC9" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="0" cy="-51" rx="4" ry="1.8" fill="#8B4226"/></g></g>
+      <g transform="rotate(210)"><g class="stamen" style="animation-delay:1.55s"><line x1="0" y1="-2" x2="0" y2="-48" stroke="#E7EFC9" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="0" cy="-51" rx="4" ry="1.8" fill="#8B4226"/></g></g>
+      <g transform="rotate(270)"><g class="stamen" style="animation-delay:1.55s"><line x1="0" y1="-2" x2="0" y2="-48" stroke="#E7EFC9" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="0" cy="-51" rx="4" ry="1.8" fill="#8B4226"/></g></g>
+      <g transform="rotate(330)"><g class="stamen" style="animation-delay:1.55s"><line x1="0" y1="-2" x2="0" y2="-48" stroke="#E7EFC9" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="0" cy="-51" rx="4" ry="1.8" fill="#8B4226"/></g></g>
+      <circle class="pistil" cx="0" cy="0" r="4" fill="#C9D9A0" style="animation-delay:1.55s"/>
+    </svg>
+  </div>
+
+  <!-- flower C (right, small) -->
+  <div class="flower" style="left:159px; top:130px;">
+    <svg width="132" height="132" viewBox="-95 -95 190 190">
+      <defs>
+        <linearGradient id="pg-c" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%" stop-color="#FDF0F4"/><stop offset="35%" stop-color="#F6A9C6"/><stop offset="100%" stop-color="#D6407A"/>
+        </linearGradient>
+        <radialGradient id="gg-c"><stop offset="0%" stop-color="#FFE9B8" stop-opacity=".85"/><stop offset="100%" stop-color="#FFE9B8" stop-opacity="0"/></radialGradient>
+        <filter id="bl-c" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="9"/></filter>
+      </defs>
+      <circle class="glow-blob" r="58" fill="url(#gg-c)" filter="url(#bl-c)" style="animation-delay:.9s"/>
+      <g transform="rotate(0)"><g class="petal" style="animation-duration:.85s; animation-delay:1.1s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-c)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".4"/><circle cx="-4" cy="-32" r="1.3" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.1" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.4" fill="#7A1B42" opacity=".55"/></g></g>
+      <g transform="rotate(60)"><g class="petal" style="animation-duration:.85s; animation-delay:1.15s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-c)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".4"/><circle cx="-4" cy="-32" r="1.3" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.1" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.4" fill="#7A1B42" opacity=".55"/></g></g>
+      <g transform="rotate(120)"><g class="petal" style="animation-duration:.85s; animation-delay:1.2s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-c)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".4"/><circle cx="-4" cy="-32" r="1.3" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.1" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.4" fill="#7A1B42" opacity=".55"/></g></g>
+      <g transform="rotate(180)"><g class="petal" style="animation-duration:.85s; animation-delay:1.25s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-c)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".4"/><circle cx="-4" cy="-32" r="1.3" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.1" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.4" fill="#7A1B42" opacity=".55"/></g></g>
+      <g transform="rotate(240)"><g class="petal" style="animation-duration:.85s; animation-delay:1.3s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-c)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".4"/><circle cx="-4" cy="-32" r="1.3" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.1" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.4" fill="#7A1B42" opacity=".55"/></g></g>
+      <g transform="rotate(300)"><g class="petal" style="animation-duration:.85s; animation-delay:1.35s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-c)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".4"/><circle cx="-4" cy="-32" r="1.3" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.1" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.4" fill="#7A1B42" opacity=".55"/></g></g>
+      <g transform="rotate(30)"><g class="stamen" style="animation-delay:1.6s"><line x1="0" y1="-2" x2="0" y2="-48" stroke="#E7EFC9" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="0" cy="-51" rx="4" ry="1.8" fill="#8B4226"/></g></g>
+      <g transform="rotate(90)"><g class="stamen" style="animation-delay:1.6s"><line x1="0" y1="-2" x2="0" y2="-48" stroke="#E7EFC9" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="0" cy="-51" rx="4" ry="1.8" fill="#8B4226"/></g></g>
+      <g transform="rotate(150)"><g class="stamen" style="animation-delay:1.6s"><line x1="0" y1="-2" x2="0" y2="-48" stroke="#E7EFC9" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="0" cy="-51" rx="4" ry="1.8" fill="#8B4226"/></g></g>
+      <g transform="rotate(210)"><g class="stamen" style="animation-delay:1.6s"><line x1="0" y1="-2" x2="0" y2="-48" stroke="#E7EFC9" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="0" cy="-51" rx="4" ry="1.8" fill="#8B4226"/></g></g>
+      <g transform="rotate(270)"><g class="stamen" style="animation-delay:1.6s"><line x1="0" y1="-2" x2="0" y2="-48" stroke="#E7EFC9" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="0" cy="-51" rx="4" ry="1.8" fill="#8B4226"/></g></g>
+      <g transform="rotate(330)"><g class="stamen" style="animation-delay:1.6s"><line x1="0" y1="-2" x2="0" y2="-48" stroke="#E7EFC9" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="0" cy="-51" rx="4" ry="1.8" fill="#8B4226"/></g></g>
+      <circle class="pistil" cx="0" cy="0" r="4" fill="#C9D9A0" style="animation-delay:1.6s"/>
+    </svg>
+  </div>
+
+  <!-- flower A (main, center, largest) -->
+  <div class="flower" style="left:65px; top:45px;">
+    <svg width="190" height="190" viewBox="-95 -95 190 190">
+      <defs>
+        <linearGradient id="pg-a" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%" stop-color="#FDF0F4"/><stop offset="35%" stop-color="#F6A9C6"/><stop offset="100%" stop-color="#D6407A"/>
+        </linearGradient>
+        <radialGradient id="gg-a"><stop offset="0%" stop-color="#FFE9B8" stop-opacity=".9"/><stop offset="100%" stop-color="#FFE9B8" stop-opacity="0"/></radialGradient>
+        <filter id="bl-a" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="10"/></filter>
+      </defs>
+      <circle class="glow-blob" r="68" fill="url(#gg-a)" filter="url(#bl-a)" style="animation-delay:1.1s"/>
+      <g transform="rotate(0)"><g class="petal" style="animation-duration:1s; animation-delay:1.3s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-a)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".45"/><circle cx="-4" cy="-32" r="1.4" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.2" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.5" fill="#7A1B42" opacity=".55"/><circle cx="5" cy="-27" r="1.1" fill="#7A1B42" opacity=".45"/></g></g>
+      <g transform="rotate(60)"><g class="petal" style="animation-duration:1s; animation-delay:1.35s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-a)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".45"/><circle cx="-4" cy="-32" r="1.4" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.2" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.5" fill="#7A1B42" opacity=".55"/><circle cx="5" cy="-27" r="1.1" fill="#7A1B42" opacity=".45"/></g></g>
+      <g transform="rotate(120)"><g class="petal" style="animation-duration:1s; animation-delay:1.4s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-a)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".45"/><circle cx="-4" cy="-32" r="1.4" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.2" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.5" fill="#7A1B42" opacity=".55"/><circle cx="5" cy="-27" r="1.1" fill="#7A1B42" opacity=".45"/></g></g>
+      <g transform="rotate(180)"><g class="petal" style="animation-duration:1s; animation-delay:1.45s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-a)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".45"/><circle cx="-4" cy="-32" r="1.4" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.2" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.5" fill="#7A1B42" opacity=".55"/><circle cx="5" cy="-27" r="1.1" fill="#7A1B42" opacity=".45"/></g></g>
+      <g transform="rotate(240)"><g class="petal" style="animation-duration:1s; animation-delay:1.5s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-a)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".45"/><circle cx="-4" cy="-32" r="1.4" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.2" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.5" fill="#7A1B42" opacity=".55"/><circle cx="5" cy="-27" r="1.1" fill="#7A1B42" opacity=".45"/></g></g>
+      <g transform="rotate(300)"><g class="petal" style="animation-duration:1s; animation-delay:1.55s"><path d="M0,-4 C-11,-12 -16,-28 -15,-45 C-14,-60 -7,-71 0,-76 C7,-71 14,-60 15,-45 C16,-28 11,-12 0,-4 Z" fill="url(#pg-a)"/><line x1="0" y1="-8" x2="0" y2="-68" stroke="#FFF6F9" stroke-width="1" opacity=".45"/><circle cx="-4" cy="-32" r="1.4" fill="#7A1B42" opacity=".55"/><circle cx="3" cy="-38" r="1.2" fill="#7A1B42" opacity=".5"/><circle cx="-2" cy="-48" r="1.5" fill="#7A1B42" opacity=".55"/><circle cx="5" cy="-27" r="1.1" fill="#7A1B42" opacity=".45"/></g></g>
+      <g transform="rotate(30)"><g class="stamen" style="animation-delay:1.85s"><line x1="0" y1="-2" x2="0" y2="-52" stroke="#E7EFC9" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="0" cy="-55" rx="4.6" ry="2" fill="#8B4226"/></g></g>
+      <g transform="rotate(90)"><g class="stamen" style="animation-delay:1.85s"><line x1="0" y1="-2" x2="0" y2="-52" stroke="#E7EFC9" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="0" cy="-55" rx="4.6" ry="2" fill="#8B4226"/></g></g>
+      <g transform="rotate(150)"><g class="stamen" style="animation-delay:1.85s"><line x1="0" y1="-2" x2="0" y2="-52" stroke="#E7EFC9" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="0" cy="-55" rx="4.6" ry="2" fill="#8B4226"/></g></g>
+      <g transform="rotate(210)"><g class="stamen" style="animation-delay:1.85s"><line x1="0" y1="-2" x2="0" y2="-52" stroke="#E7EFC9" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="0" cy="-55" rx="4.6" ry="2" fill="#8B4226"/></g></g>
+      <g transform="rotate(270)"><g class="stamen" style="animation-delay:1.85s"><line x1="0" y1="-2" x2="0" y2="-52" stroke="#E7EFC9" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="0" cy="-55" rx="4.6" ry="2" fill="#8B4226"/></g></g>
+      <g transform="rotate(330)"><g class="stamen" style="animation-delay:1.85s"><line x1="0" y1="-2" x2="0" y2="-52" stroke="#E7EFC9" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="0" cy="-55" rx="4.6" ry="2" fill="#8B4226"/></g></g>
+      <circle class="pistil" cx="0" cy="0" r="4.6" fill="#C9D9A0" style="animation-delay:1.85s"/>
+    </svg>
+  </div>
+
+  <!-- floating hearts -->
+  <svg class="heart" style="left:250px; top:150px; width:16px; height:16px; animation-duration:4.4s; animation-delay:2.3s;" viewBox="0 0 20 20"><path d="M10,17 C10,17 2,11.5 2,6.7 C2,3.6 4.4,2 6.8,2 C8.4,2 9.5,2.9 10,4 C10.5,2.9 11.6,2 13.2,2 C15.6,2 18,3.6 18,6.7 C18,11.5 10,17 10,17 Z" fill="#ffb3c6" opacity=".9"/></svg>
+  <svg class="heart" style="left:70px; top:160px; width:12px; height:12px; animation-duration:5s; animation-delay:2.8s;" viewBox="0 0 20 20"><path d="M10,17 C10,17 2,11.5 2,6.7 C2,3.6 4.4,2 6.8,2 C8.4,2 9.5,2.9 10,4 C10.5,2.9 11.6,2 13.2,2 C15.6,2 18,3.6 18,6.7 C18,11.5 10,17 10,17 Z" fill="#ff8fae" opacity=".85"/></svg>
+  <svg class="heart" style="left:180px; top:110px; width:14px; height:14px; animation-duration:4.8s; animation-delay:3.3s;" viewBox="0 0 20 20"><path d="M10,17 C10,17 2,11.5 2,6.7 C2,3.6 4.4,2 6.8,2 C8.4,2 9.5,2.9 10,4 C10.5,2.9 11.6,2 13.2,2 C15.6,2 18,3.6 18,6.7 C18,11.5 10,17 10,17 Z" fill="#ffc9d6" opacity=".9"/></svg>
+  <svg class="heart" style="left:130px; top:170px; width:11px; height:11px; animation-duration:4.2s; animation-delay:2.5s;" viewBox="0 0 20 20"><path d="M10,17 C10,17 2,11.5 2,6.7 C2,3.6 4.4,2 6.8,2 C8.4,2 9.5,2.9 10,4 C10.5,2.9 11.6,2 13.2,2 C15.6,2 18,3.6 18,6.7 C18,11.5 10,17 10,17 Z" fill="#ff8fae" opacity=".8"/></svg>
+</div>
+
+<div class="caption-row">
+  <button type="button" id="replay-btn" aria-label="Play the animation again">play again</button>
+</div>
+
+<script>
+document.getElementById('replay-btn').addEventListener('click', function(){
+  var scene = document.getElementById('scene');
+  scene.innerHTML = scene.innerHTML;
+});
+</script>
+
+</body>
+</html>
